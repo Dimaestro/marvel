@@ -1,0 +1,14 @@
+{{#each this}}
+  <li class='characters-page-item' id="{{this.id}}">
+    <div class='image-thumb'>
+      <img
+        class='characters-page-img'
+        src='{{this.thumbnail.path}}/detail.{{this.thumbnail.extension}}'
+        alt=''
+      />
+    </div>
+    <div class='characters-page-span'>
+      <p class='characters-page-name'>{{this.name}}</p>
+    </div>
+  </li>
+{{/each}}

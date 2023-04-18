@@ -1,4 +1,6 @@
 @import '/node_modules/modern-normalize/modern-normalize.css';
 @import './reset.css';
+@import './charcters-filter.css';
+@import './characters-card.css';
 @import './modal-character.css';
 @import 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&family=Raleway:wght@800&display=swap';

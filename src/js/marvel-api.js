@@ -1,191 +1,243 @@
 import axios from 'axios';
-import md5 from 'md5';
+import { getHash } from './md5-hash';
 
 export class MarvelApi {
-
- static PUBLIC_KEY = '362c5982a1bb7f937dd44f95ce965f3b';
- static PRIVATE_KEY = '6029b0905eedb0e67e35a1cbd973b27ffa2f6416';
- static URL_BASIS = 'https://gateway.marvel.com/v1/public';
- static TS = 1;
- static URL_CHARACTERS = '/characters';
- static URL_COMICS = '/comics';
- 
+  //  static HASH_KEY = '752374e9c2edb150871c0c2b35839a8b';
+  static PUBLIC_KEY = '362c5982a1bb7f937dd44f95ce965f3b';
+  static PRIVATE_KEY = '6029b0905eedb0e67e35a1cbd973b27ffa2f6416';
+  static URL_BASIS = 'https://gateway.marvel.com/v1/public';
+  static TS = 1;
+  static URL_CHARACTERS = '/characters';
+  static URL_COMICS = '/comics';
 
   constructor() {
     this.limit = 16;
-    this.name = null;
-    this.hash = '';
+    this.offset = 0;
+
+    this.nameStartsWith = null;
+    this.comics = null;
+    this.orderBy = null;
+    this.modifiedSince = null;
+
+    this.id = null;
+
+    this.hash = getHash(
+      MarvelApi.TS,
+      MarvelApi.PRIVATE_KEY,
+      MarvelApi.PUBLIC_KEY
+    );
   }
 
-  getCharacters() {
+  getCharactersByIdName(id) {
     const options = {
       baseURL: MarvelApi.URL_BASIS,
       params: {
         apikey: MarvelApi.PUBLIC_KEY,
-        hash: getHash(),
+        hash: this.hash,
         ts: MarvelApi.TS,
-        limit: this.limit,
-        name: this.name,
+        limit: 3,
+        format: 'digital comic',
       },
     };
-    return axios.get(`${MarvelApi.URL_CHARACTERS}`,options);
+    return axios.get(`${ MarvelApi.URL_CHARACTERS }/${ id }/${MarvelApi.URL_COMICS}`, options);
   }
 
-  
+  getCharactersById(id) {
+    const options = {
+      baseURL: MarvelApi.URL_BASIS,
+      params: {
+        apikey: MarvelApi.PUBLIC_KEY,
+        hash: this.hash,
+        ts: MarvelApi.TS,
+      },
+    };
+    return axios.get(`${ MarvelApi.URL_CHARACTERS }/${ id }`, options);
+  }
+
+  getCharactersName() {
+    const options = {
+      baseURL: MarvelApi.URL_BASIS,
+      params: {
+        apikey: MarvelApi.PUBLIC_KEY,
+        hash: this.hash,
+        ts: MarvelApi.TS,
+        limit: this.limit,
+        nameStartsWith: this.nameStartsWith,
+      },
+    };
+    return axios.get(`${ MarvelApi.URL_CHARACTERS }`, options);
+  }
+
+  getComics() {
+    const options = {
+      baseURL: MarvelApi.URL_BASIS,
+      params: {
+        apikey: MarvelApi.PUBLIC_KEY,
+        hash: md5('hello'),
+        ts: MarvelApi.TS,
+        limit: this.limit,
+      },
+    };
+    return axios.get(`${ MarvelApi.URL_COMICS }`, options);
+  }
 }
+
+
+
+
 
 // ------------------------------- AXIOS ---------------------------------
 
 // {
-//   // `url` - URL-адрес сервера, который будет использоваться для запроса
+// `url` - URL-адрес сервера, который будет использоваться для запроса
 //   url: '/user',
 
-//   // `method` - это метод запроса, который следует использовать при подаче запроса
+// `method` - это метод запроса, который следует использовать при подаче запроса
 //   method: 'get', // значение по умолчанию
 
-//   // `baseURL` будет добавляться `url`, если `url` не является абсолютным.
-//   // Может быть удобно установить `baseURL` для экземпляра axios для передачи относительных URL-адресов
-//   // к методам этого экземпляра.
+// `baseURL` будет добавляться `url`, если `url` не является абсолютным.
+// Может быть удобно установить `baseURL` для экземпляра axios для передачи относительных URL-адресов
+// к методам этого экземпляра.
 //   baseURL: 'https://some-domain.com/api',
 
-//   // `transformRequest`позволяет изменять данные запроса перед его отправкой на сервер
-//   // Это применимо только для методов запроса 'PUT', 'POST', 'PATCH' и 'DELETE'
-//   // Последняя функция в массиве должна возвращать строку или экземпляр Buffer, ArrayBuffer,
-//   // FormData или Stream
-//   // Вы можете изменить объект headers
+// `transformRequest`позволяет изменять данные запроса перед его отправкой на сервер
+// Это применимо только для методов запроса 'PUT', 'POST', 'PATCH' и 'DELETE'
+// Последняя функция в массиве должна возвращать строку или экземпляр Buffer, ArrayBuffer,
+// FormData или Stream
+// Вы можете изменить объект headers
 //   transformRequest: [function (data, headers) {
-//     // Делайте все, что хотите, чтобы преобразовать данные
+// Делайте все, что хотите, чтобы преобразовать данные
 
 //     return data;
 //   }],
 
-//   // `transformResponse` позволяет вносить изменения в данные ответа перед их передачей then/catch
+// `transformResponse` позволяет вносить изменения в данные ответа перед их передачей then/catch
 //   transformResponse: [function (data) {
-//     // Делайте все, что хотите, чтобы преобразовать данные
+// Делайте все, что хотите, чтобы преобразовать данные
 
 //     return data;
 //   }],
 
-//   // `headers` - это пользовательские заголовки для запроса
+// `headers` - это пользовательские заголовки для запроса
 //   headers: {'X-Requested-With': 'XMLHttpRequest'},
 
-//   // `params` - это URL-параметры, которые отправляются вместе с запросом
-//   // Должно быть обычным объектом или объектом URLSearchParams
-//   // Примечание: параметры, которые являются нулевыми или неопределенными, не отображаются в URL-адресе.
+// `params` - это URL-параметры, которые отправляются вместе с запросом
+// Должно быть обычным объектом или объектом URLSearchParams
+// Примечание: параметры, которые являются нулевыми или неопределенными, не отображаются в URL-адресе.
 //   params: {
 //     ID: 12345
 //   },
 
-//   // `paramsSerializer` это дополнительная функция, отвечающая за сериализацию `params`
-//   // (например https://www.npmjs.com/package/qs, http://api.jquery.com/jquery.param/)
+// `paramsSerializer` это дополнительная функция, отвечающая за сериализацию `params`
+// (например https://www.npmjs.com/package/qs, http://api.jquery.com/jquery.param/)
 //   paramsSerializer: function (params) {
 //     return Qs.stringify(params, {arrayFormat: 'brackets'})
 //   },
 
-//   // `data` - это данные, которые посылаются как тело запроса
-//   // Применяется только к методам запроса 'PUT', 'POST', 'DELETE , and 'PATCH'
-//   // Если параметр `transformRequest` не установлен, он должен иметь один из следующих типов:
-//   // - строка, обычный объект, ArrayBuffer, ArrayBufferView, URLSearchParams
-//   // - Только для браузера: FormData, File, Blob
-//   // - Только для Node.js: Stream, Buffer
+// `data` - это данные, которые посылаются как тело запроса
+// Применяется только к методам запроса 'PUT', 'POST', 'DELETE , and 'PATCH'
+// Если параметр `transformRequest` не установлен, он должен иметь один из следующих типов:
+// - строка, обычный объект, ArrayBuffer, ArrayBufferView, URLSearchParams
+// - Только для браузера: FormData, File, Blob
+// - Только для Node.js: Stream, Buffer
 //   data: {
 //     firstName: 'Fred'
 //   },
 
-//   // альтернатива синтаксису для передачи данных в тело
-//   // POST-метода
-//   // отправляется только значение, а не ключ
+// альтернатива синтаксису для передачи данных в тело
+// POST-метода
+// отправляется только значение, а не ключ
 //   data: 'Country=Brasil&City=Belo Horizonte',
 
-//   // `timeout` указывает количество миллисекунд до истечения времени ожидания запроса.
-//   // Если запрос занимает больше времени, чем `timeout`, запрос будет прерван.
+// `timeout` указывает количество миллисекунд до истечения времени ожидания запроса.
+// Если запрос занимает больше времени, чем `timeout`, запрос будет прерван.
 //   timeout: 1000, // по умолчанию `0` (без времени ожидания)
 
-//   // `withCredentials` указывает, будут ли межсайтовые запросы управления доступом
-//   // должно быть сделано с использованием учетных данных
+// `withCredentials` указывает, будут ли межсайтовые запросы управления доступом
+// должно быть сделано с использованием учетных данных
 //   withCredentials: false, // по умолчанию
 
-//   // `adapter`позволяет настраивать обработку запросов, что упрощает тестирование.
-//   // Возвращает Promise и предоставляет действительный ответ (см. lib/adapters/README.md).
+// `adapter`позволяет настраивать обработку запросов, что упрощает тестирование.
+// Возвращает Promise и предоставляет действительный ответ (см. lib/adapters/README.md).
 //   adapter: function (config) {
 //     /* ... */
 //   },
 
-//   // `auth` указывает, что следует использовать базовую аутентификацию HTTP, и предоставляет учетные данные.
-//   // Это установит заголовок `Authorization`, перезаписав любой существующий
-//   // `Authorization` пользовательский заголовок, которыё вы установили с помощью `headers`.
-//   // Обратите внимание, что с помощью этого параметра можно настроить только базовую аутентификацию HTTP.
-//   // Для токенов Bearer и т. д. вместо этого используйте пользовательский заголовок `Authorization`.
+// `auth` указывает, что следует использовать базовую аутентификацию HTTP, и предоставляет учетные данные.
+// Это установит заголовок `Authorization`, перезаписав любой существующий
+// `Authorization` пользовательский заголовок, которыё вы установили с помощью `headers`.
+// Обратите внимание, что с помощью этого параметра можно настроить только базовую аутентификацию HTTP.
+// Для токенов Bearer и т. д. вместо этого используйте пользовательский заголовок `Authorization`.
 //   auth: {
 //     username: 'janedoe',
 //     password: 's00pers3cret'
 //   },
 
-//   // `responseType` указывает тип данных, на которые будет отвечать сервер
-//   // типы данных: 'arraybuffer', 'document', 'json', 'text', 'stream'
-//   //  Только для браузера: 'blob'
+// `responseType` указывает тип данных, на которые будет отвечать сервер
+// типы данных: 'arraybuffer', 'document', 'json', 'text', 'stream'
+//  Только для браузера: 'blob'
 //   responseType: 'json', // по умолчанию
 
-//   // `responseEncoding` указывает кодирование для декодирования ответов (только для Node.js)
-//   // Примечание: Игнорируется для `responseType` запросов 'stream' или запросов на стороне клиента
+// `responseEncoding` указывает кодирование для декодирования ответов (только для Node.js)
+// Примечание: Игнорируется для `responseType` запросов 'stream' или запросов на стороне клиента
 //   responseEncoding: 'utf8', // по умолчанию
 
-//   // `xsrfCookieName` - это имя файла cookie, которое будет использоваться как значение токена xsrf
+// `xsrfCookieName` - это имя файла cookie, которое будет использоваться как значение токена xsrf
 //   xsrfCookieName: 'XSRF-TOKEN', // по умолчанию
 
-//   // `xsrfHeaderName` - это название заголовка http, содержащее значение токена xsrf
+// `xsrfHeaderName` - это название заголовка http, содержащее значение токена xsrf
 //   xsrfHeaderName: 'X-XSRF-TOKEN', // по умолчанию
 
-//   // `onUploadProgress` позволяет обрабатывать события прогресса загрузки
-//   // только для браузера
+// `onUploadProgress` позволяет обрабатывать события прогресса загрузки
+// только для браузера
 //   onUploadProgress: function (progressEvent) {
-//     // Делайте все, что хотите, с родным событием прогресса
+// Делайте все, что хотите, с родным событием прогресса
 //   },
 
-//   // `onDownloadProgress` позволяет обрабатывать события прогресса скачивания
-//   // только для браузера
+// `onDownloadProgress` позволяет обрабатывать события прогресса скачивания
+// только для браузера
 //   onDownloadProgress: function (progressEvent) {
-//     // Делайте все, что хотите, с родным событием прогресса
+// Делайте все, что хотите, с родным событием прогресса
 //   },
 
-//   // `maxContentLength` определяет максимальный размер содержимого ответа http в байтах, разрешенный в node.js
+// `maxContentLength` определяет максимальный размер содержимого ответа http в байтах, разрешенный в node.js
 //   maxContentLength: 2000,
 
-//   // `maxBodyLength` (Только для Node.js) определяет максимальный разрешенный размер содержимого HTTP-запроса в байтах.
+// `maxBodyLength` (Только для Node.js) определяет максимальный разрешенный размер содержимого HTTP-запроса в байтах.
 //   maxBodyLength: 2000,
 
-//   // `validateStatus` определяет, разрешить или отклонить Promise для данного
-//   // статуса HTTP-запроса. Если `validateStatus` возвращает `true` (или установлено значение `null`
-//   // или `undefined`), Promise будет возвращен; иначе, Promise будет отклонен.
+// `validateStatus` определяет, разрешить или отклонить Promise для данного
+// статуса HTTP-запроса. Если `validateStatus` возвращает `true` (или установлено значение `null`
+// или `undefined`), Promise будет возвращен; иначе, Promise будет отклонен.
 //   validateStatus: function (status) {
 //     return status >= 200 && status < 300; // по умолчанию
 //   },
 
-//   // `maxRedirects` определяет максимальное количество перенаправлений в node.js.
-//   // Если установлено значение 0, перенаправления не будут выполняться.
+// `maxRedirects` определяет максимальное количество перенаправлений в node.js.
+// Если установлено значение 0, перенаправления не будут выполняться.
 //   maxRedirects: 5, // по умолчанию
 
-//   // `socketPath` определяет UNIX Сокет для использования в node.js.
-//   // например '/var/run/docker.sock' для отправки запросов к docker.
-//   // Можно указать только `socketPath` или `proxy`.
-//   // Если указаны оба, используется `socketPath`.
+// `socketPath` определяет UNIX Сокет для использования в node.js.
+// например '/var/run/docker.sock' для отправки запросов к docker.
+// Можно указать только `socketPath` или `proxy`.
+// Если указаны оба, используется `socketPath`.
 //   socketPath: null, // по умолчанию
 
-//   // `httpAgent` и `httpsAgent` определяют пользовательский агент, который будет использоваться при выполнении http
-//   // и https запросов, соответственно в node.js.Это позволяет добавлять такие параметры, как
-//   // `keepAlive` который не включен по умолчанию.
+// `httpAgent` и `httpsAgent` определяют пользовательский агент, который будет использоваться при выполнении http
+// и https запросов, соответственно в node.js.Это позволяет добавлять такие параметры, как
+// `keepAlive` который не включен по умолчанию.
 //   httpAgent: new http.Agent({ keepAlive: true }),
 //   httpsAgent: new https.Agent({ keepAlive: true }),
 
-//   // `proxy` определяет имя хоста, порт и протокол прокси-сервера.
-//   // Вы также можете определить свой прокси, используя обычный `http_proxy` и
-//   // переменные `https_proxy`. Если вы используете переменные среды для конфигурации прокси
-//   // вы также можете определить переменную `no_proxy` как список доменов, разделенных запятыми, которые не должны быть проксированы.
-//   // Используйте `false`, чтобы отключить прокси, игнорируя переменные среды.
-//   // `auth` указывает, что для подключения к прокси-серверу следует использовать базовую аутентификацию HTTP, и предоставляет учетные данные.
-//   // Это установит заголовок `Proxy-Authorization`, перезаписав любой существующий
-//   // `Proxy-Authorization` пользовательский заголовок, который вы установили в `headers`.
-//   // Если прокси-сервер использует HTTPS, вы должны установить протокол `https`.
+// `proxy` определяет имя хоста, порт и протокол прокси-сервера.
+// Вы также можете определить свой прокси, используя обычный `http_proxy` и
+// переменные `https_proxy`. Если вы используете переменные среды для конфигурации прокси
+// вы также можете определить переменную `no_proxy` как список доменов, разделенных запятыми, которые не должны быть проксированы.
+// Используйте `false`, чтобы отключить прокси, игнорируя переменные среды.
+// `auth` указывает, что для подключения к прокси-серверу следует использовать базовую аутентификацию HTTP, и предоставляет учетные данные.
+// Это установит заголовок `Proxy-Authorization`, перезаписав любой существующий
+// `Proxy-Authorization` пользовательский заголовок, который вы установили в `headers`.
+// Если прокси-сервер использует HTTPS, вы должны установить протокол `https`.
 //   proxy: {
 //     protocol: 'https',
 //     host: '127.0.0.1',
@@ -196,14 +248,14 @@ export class MarvelApi {
 //     }
 //   },
 
-//   // `cancelToken` указывает токен отмены, который можно использовать для отмены запроса
-//   // (см. подробнее в разделе Отмена запроса ниже)
+// `cancelToken` указывает токен отмены, который можно использовать для отмены запроса
+// (см. подробнее в разделе Отмена запроса ниже)
 //   cancelToken: new CancelToken(function (cancel) {
 //   }),
 
-//   // `decompress` указывает, следует ли распаковывать тело ответа
-//   // автоматически. Если установлено значение `true`, также удалит заголовок 'content-encoding' из объектов ответов всех распакованных ответов.
-//   // - Только для Node.js (XHR не может отключить декомпрессию)
+// `decompress` указывает, следует ли распаковывать тело ответа
+// автоматически. Если установлено значение `true`, также удалит заголовок 'content-encoding' из объектов ответов всех распакованных ответов.
+// - Только для Node.js (XHR не может отключить декомпрессию)
 //   decompress: true // по умолчанию
 
 // }

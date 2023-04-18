@@ -4,8 +4,11 @@ let marvelApi = new MarvelApi();
 
 async function renderModalCharacters() {
   try {
-    const responce = await marvelApi.getCharacters();
-    console.log(responce);
+    // const {data: {data: {results}}} = await marvelApi.getCharacters();
+    // console.log(results);
+    const {data: {data: {results}}} = await marvelApi.getCharactersById('1010802');
+    console.log(results[0].thumbnail);
+
   } catch (error) {
     console.log(error);
   }
